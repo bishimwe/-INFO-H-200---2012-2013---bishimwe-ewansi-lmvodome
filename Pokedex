@@ -1,0 +1,90 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+
+public class Pokedex {
+
+  private List<PokedexEntry> liste;
+	
+	public Pokedex() {
+		liste = new ArrayList<PokedexEntry>();
+	}
+	
+	public void readFile() throws IOException {
+		readPokedexEntry("Fichiers/pokemons.txt");
+		List<Attack> listeAttaque = readListAttack("Fichiers/moves.csv");
+		readLevelAttack("Fichiers/pokemon_moves.csv", listeAttaque);
+	}
+	
+	private void readPokedexEntry(String fileName) throws IOException {
+		BufferedReader reader = new BufferedReader( new FileReader(fileName) );
+		
+		String line = "";
+		
+		line = reader.readLine();
+		while(line != null) {
+			liste.add( new PokedexEntry(line) );
+			line = reader.readLine();
+		}
+		
+		reader.close();
+	}
+
+	private void readLevelAttack(String fileName, List<Attack> listeAttaque) throws IOException {
+		BufferedReader reader = new BufferedReader( new FileReader(fileName) );
+		
+		String line = "";
+		
+		line = reader.readLine();
+		while(line != null) {
+			StringTokenizer tokens = new StringTokenizer(line, ";");
+			
+			int pokemon_id = Integer.parseInt(tokens.nextToken());
+			int id_attack = Integer.parseInt(tokens.nextToken());
+			int level = Integer.parseInt(tokens.nextToken());
+			
+			PokedexEntry pokedexEntry = liste.get(pokemon_id - 1);
+			Attack attack = listeAttaque.get(id_attack - 1);
+
+			pokedexEntry.addLevelAttack(level, attack);
+			
+			line = reader.readLine();
+		}
+		
+		reader.close();
+	}
+
+	private static List<Attack> readListAttack(String fileName) throws IOException {
+		List<Attack> liste = new ArrayList<Attack>();
+		
+		BufferedReader reader = new BufferedReader( new FileReader(fileName) );
+		
+		String line = "";
+		
+		line = reader.readLine();
+		while(line != null) {
+			StringTokenizer tokens = new StringTokenizer(line, ";");
+			
+			int id_attack = Integer.parseInt(tokens.nextToken());
+			String attackName = tokens.nextToken();
+			int type = Integer.parseInt(tokens.nextToken());
+			int power = Integer.parseInt(tokens.nextToken());
+			int pp = Integer.parseInt(tokens.nextToken());
+			
+			Attack attack = new Attack(power, type, pp, attackName);
+			liste.add(attack);
+		}
+		
+		reader.close();
+		
+		return liste;
+	}
+
+	public PokedexEntry get(int num) {
+		return liste.get(num);
+	}
+}
